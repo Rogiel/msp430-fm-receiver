@@ -10,6 +10,8 @@
 
 #include <msp430.h>
 
+#include "I2C/I2CBus.h"
+
 /**
  * Main
  */
@@ -21,7 +23,14 @@ int main (void)  {
 	P1DIR = 0xFF;
 
 	// liga o LED vermelho
-	P1OUT = 0b0000001;
+	P1OUT = 0b0000000;
+
+	I2C::I2CBus bus((I2C::I2CBus::Port)&P1OUT, (I2C::I2CBus::Port)&P1IN, (I2C::I2CBus::Port)&P2OUT, (I2C::I2CBus::Port)&P2IN);
+	for(;;) {
+		bus.start();
+		bus.transmit(0x00);
+		bus.stop();
+	}
 
 	return 1;
 }
