@@ -1,14 +1,17 @@
 //
-//  Juice - Peer to Peer Networking library
+// Universidade Federal do Rio Grande do Sul
+// Escola de Engenharia
+// Departamento de Engenharia Elétrica
+// Microprocessadores I
 //
-//  Created by Rogiel Sulzbach.
-//  Copyright (c) 2014-2015 Rogiel Sulzbach. All rights reserved.
+// Implementação I2C
+// Autores: Gustavo Dal Molin, Gustavo dos Anjos e Rogiel Sulzbach
 //
 
 #include "I2CBus.h"
 
 namespace I2C {
-	I2CBus::I2CBus(Port sclOut, Port sclIn, Port sdaOut, Port sdaIn) : _sclOut(sclOut), _sdaOut(sdaOut) {}
+	I2CBus::I2CBus(IO::Pin scl, IO::Pin sda) : _scl(scl), _sda(sda) {}
 
 	void I2CBus::start() {
 		writeSDA(0x01);
@@ -28,7 +31,7 @@ namespace I2C {
 		uint8_t bit;
 		uint8_t read = 0;
 
-		*_sdaOut = 1;
+		_sda = 1;
 		for(bit = 0; bit <8; bit++) {
 			read <<= 1;
 			do {
@@ -37,17 +40,17 @@ namespace I2C {
 			while(readSCL() == 0);    // wait for any SCL clock stretching
 			delay();
 			if(readSDA()) read |= 1;
-			_sclOut = 0;
+			_scl = 0;
 		}
 		if(ack) {
-			*_sdaOut = 0;
+			_sda = 0;
 		} else {
-			*_sdaOut = 1;
+			_sda = 1;
 		}
-		*_sclOut = 1;
+		_scl = 1;
 		delay();             // send (N)ACK bit
-		*_sclOut = 0;
-		*_sdaOut = 1;
+		_scl = 0;
+		_sda = 1;
 
 		return read;
 	}
@@ -56,41 +59,42 @@ namespace I2C {
 		char bit;
 		static uint8_t ack;
 		for(bit = 8; bit; bit--) {
-			if(data&0x80) {
-				*_sdaOut = 1;
+			if(data & 0x80) {
+				_sda = 1;
 			}
 			else {
-				*_sdaOut = 0;
+				_sda = 0;
 			}
-			*_sclOut = 1;
+			_scl = 1;
 			data <<= 1;
-			*_sclOut = 0;
+			_scl = 0;
+			delay();
 		}
-		*_sdaOut = 1;
-		*_sclOut = 1;
+		_sda = 1;
+		_scl = 1;
 		delay();
-		ack = *_sdaIn;          // possible ACK bit
-		*_sclOut = 0;
+		ack = _sda;          // possible ACK bit
+		_scl = 0;
 
 		return ack;
 	}
 
 	inline void I2CBus::writeSDA(uint8_t data) {
-		*_sdaOut = data;
+		_sda = data;
 		delay();
 	}
 
 	inline uint8_t I2CBus::readSDA() {
-		return *_sdaIn;
+		return _sda;
 	}
 
 	inline void I2CBus::writeSCL(uint8_t data) {
-		*_sclOut = data;
+		_scl = data;
 		delay();
 	}
 
 	inline uint8_t I2CBus::readSCL() {
-		return *_sclIn;
+		return _scl;
 	}
 
 	void I2CBus::delay() const {

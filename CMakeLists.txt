@@ -14,7 +14,7 @@ set(CMAKE_CXX_FLAGS "${MSP_CPU_FLAG} --std=c++11")
 set(CMAKE_EXE_LINKER_FLAGS "${MSP_CPU_FLAG} -lm -Wl,--gc-sections -Os ")
 
 # Create the executable
-add_executable(i2cmaster Source/main.cpp Source/I2C/I2CBus.cpp Source/I2C/I2CBus.h)
+add_executable(i2cmaster Source/main.cpp Source/I2C/I2CBus.cpp Source/I2C/I2CBus.h Source/IO/Pin.h Source/FM/FMReceiver.cpp Source/FM/FMReceiver.h)
 
 # Create a flash target if the toolchain file was selected correctly
 if (MSP_TOOLCHAIN)

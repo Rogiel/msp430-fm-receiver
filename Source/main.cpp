@@ -20,17 +20,31 @@ int main (void)  {
 	WDTCTL = WDTPW | WDTHOLD;
 
 	// define direação da porta -> saída
-	P1DIR = 0xFF;
+	P1DIR = 0b11111101;
 
 	// liga o LED vermelho
 	P1OUT = 0b0000000;
 
-	I2C::I2CBus bus((I2C::I2CBus::Port)&P1OUT, (I2C::I2CBus::Port)&P1IN, (I2C::I2CBus::Port)&P2OUT, (I2C::I2CBus::Port)&P2IN);
-	for(;;) {
-		bus.start();
-		bus.transmit(0x00);
-		bus.stop();
-	}
+//	for(;;) {
+//		if(P1IN & (1 << 3)) {
+//			P1OUT ^= (P1OUT & 1 ? 0 : 1);
+//		}
+//	}
+
+	IO::Pin scl((IO::Pin::Port) &P1IN, (IO::Pin::Port) &P1OUT, 0, (IO::Pin::Port) &P1DIR);
+	IO::Pin sda((IO::Pin::Port) &P1IN, (IO::Pin::Port) &P1OUT, 6, (IO::Pin::Port) &P1DIR);
+
+	I2C::I2CBus bus(scl, sda);
+	bus.start();
+	bus.transmit(0b10101010);
+	bus.stop();
+
+	P1OUT = 0;
+//	for(;;) {
+//		bus.start();
+//		bus.transmit(0x00);
+//		bus.stop();
+//	}
 
 	return 1;
 }
