@@ -11,40 +11,33 @@
 #include <msp430.h>
 
 #include "I2C/I2CBus.h"
+#include "IO/Button.h"
+
+#include "FM/FMReceiver.h"
+#include "FM/FMMemory.h"
 
 /**
  * Main
  */
-int main (void)  {
+int main ()  {
 	// Para o contador watchdog
 	WDTCTL = WDTPW | WDTHOLD;
 
-	// define direação da porta -> saída
-	P1DIR = 0b11111101;
+	FM::FMMemory& memory = FM::FMMemory::sharedMemory();
+	memory._memory[0]._switches = 20;
 
-	// liga o LED vermelho
-	P1OUT = 0b0000000;
+	I2C::I2CBus bus(IO::Pin::get<1>(0), IO::Pin::get<1>(6));
+	FM::FMReceiver receiver(bus);
 
-//	for(;;) {
-//		if(P1IN & (1 << 3)) {
-//			P1OUT ^= (P1OUT & 1 ? 0 : 1);
-//		}
-//	}
+	IO::Button button = IO::Pin::get<1>(3);
 
-	IO::Pin scl((IO::Pin::Port) &P1IN, (IO::Pin::Port) &P1OUT, 0, (IO::Pin::Port) &P1DIR);
-	IO::Pin sda((IO::Pin::Port) &P1IN, (IO::Pin::Port) &P1OUT, 6, (IO::Pin::Port) &P1DIR);
+	receiver.setFrequency(96.0);
+	receiver.setVolume(1.0);
+	while(true) {
+		receiver.updateIfNeeded();
 
-	I2C::I2CBus bus(scl, sda);
-	bus.start();
-	bus.transmit(0b10101010);
-	bus.stop();
-
-	P1OUT = 0;
-//	for(;;) {
-//		bus.start();
-//		bus.transmit(0x00);
-//		bus.stop();
-//	}
-
-	return 1;
+		if(button.isPressed()) {
+			receiver.setFrequency(98.0);
+		}
+	}
 }

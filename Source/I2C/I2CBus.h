@@ -37,6 +37,11 @@ namespace I2C {
 		 */
 		I2CBus(IO::Pin scl, IO::Pin sda);
 
+		/**
+		 * Destroe o bus I2C e seta os SCL e SDA para o valor baixo
+		 */
+		~I2CBus();
+
 	public:
 		/**
 		 * Envia a sequência de START do I2C.
@@ -57,7 +62,7 @@ namespace I2C {
 		 *
 		 * @return o byte lido do bus
 		 */
-		uint8_t receive(uint8_t ack);
+		uint8_t receive(bool ack);
 
 		/**
 		 * Transmite um byte para o bus
@@ -66,7 +71,7 @@ namespace I2C {
 		 *
 		 * @return o sinal de ack, se recebido
 		 */
-		uint8_t transmit(uint8_t data);
+		bool transmit(uint8_t data);
 
 	private:
 		/**

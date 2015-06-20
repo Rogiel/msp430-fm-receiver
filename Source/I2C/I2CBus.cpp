@@ -11,7 +11,18 @@
 #include "I2CBus.h"
 
 namespace I2C {
-	I2CBus::I2CBus(IO::Pin scl, IO::Pin sda) : _scl(scl), _sda(sda) {}
+	I2CBus::I2CBus(IO::Pin scl, IO::Pin sda) : _scl(scl), _sda(sda) {
+		_scl = 0;
+		_sda = 0;
+
+		_scl.pullup(true);
+		_sda.pullup(true);
+	}
+
+	I2CBus::~I2CBus() {
+		_sda = 0;
+		_scl = 0;
+	}
 
 	void I2CBus::start() {
 		writeSDA(0x01);
@@ -27,7 +38,7 @@ namespace I2C {
 		writeSDA(0x01);
 	}
 
-	uint8_t I2CBus::receive(uint8_t ack) {
+	uint8_t I2CBus::receive(bool ack) {
 		uint8_t bit;
 		uint8_t read = 0;
 
@@ -42,6 +53,7 @@ namespace I2C {
 			if(readSDA()) read |= 1;
 			_scl = 0;
 		}
+
 		if(ack) {
 			_sda = 0;
 		} else {
@@ -55,24 +67,25 @@ namespace I2C {
 		return read;
 	}
 
-	uint8_t I2CBus::transmit(uint8_t data) {
+	bool I2CBus::transmit(uint8_t data) {
 		char bit;
-		static uint8_t ack;
+		bool ack;
+
 		for(bit = 8; bit; bit--) {
 			if(data & 0x80) {
 				_sda = 1;
-			}
-			else {
+			} else {
 				_sda = 0;
 			}
 			_scl = 1;
 			data <<= 1;
-			_scl = 0;
 			delay();
+			_scl = 0;
 		}
 		_sda = 1;
 		_scl = 1;
 		delay();
+
 		ack = _sda;          // possible ACK bit
 		_scl = 0;
 
@@ -98,7 +111,7 @@ namespace I2C {
 	}
 
 	void I2CBus::delay() const {
-		__delay_cycles(1000000);
+		__delay_cycles(100000);
 		// no-op
 	}
 }
