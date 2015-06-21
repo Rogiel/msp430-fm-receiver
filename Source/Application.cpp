@@ -33,54 +33,82 @@ namespace {
 }
 
 Application::Application() :
-		bus(IO::Pin::get<BUS_SCL_PORT>(BUS_SCL_BIT), IO::Pin::get<BUS_SDA_PORT>(BUS_SDA_BIT)),
-		receiver(bus),
-		saveButton(IO::Pin::get<BUTTON_SAVE_PORT>(BUTTON_SAVE_BIT)),
-		eraseButton(IO::Pin::get<BUTTON_ERASE_PORT>(BUTTON_ERASE_BIT)),
-		changeMemoryButton (IO::Pin::get<BUTTON_CHANGE_PORT>(BUTTON_CHANGE_BIT)),
-		upButton(IO::Pin::get<BUTTON_UP_PORT>(BUTTON_UP_BIT)),
-		downButton(IO::Pin::get<BUTTON_DOWN_PORT>(BUTTON_DOWN_BIT)),
-		muteButton(IO::Pin::get<BUTTON_MUTE_PORT>(BUTTON_MUTE_BIT)) {
+		_bus(IO::Pin::get<BUS_SCL_PORT>(BUS_SCL_BIT), IO::Pin::get<BUS_SDA_PORT>(BUS_SDA_BIT)),
+		_receiver(_bus),
+		_saveButton(IO::Pin::get<BUTTON_SAVE_PORT>(BUTTON_SAVE_BIT)),
+		_eraseButton(IO::Pin::get<BUTTON_ERASE_PORT>(BUTTON_ERASE_BIT)),
+		_changeMemoryButton(IO::Pin::get<BUTTON_CHANGE_PORT>(BUTTON_CHANGE_BIT)),
+		_upButton(IO::Pin::get<BUTTON_UP_PORT>(BUTTON_UP_BIT)),
+		_downButton(IO::Pin::get<BUTTON_DOWN_PORT>(BUTTON_DOWN_BIT)),
+		_muteButton(IO::Pin::get<BUTTON_MUTE_PORT>(BUTTON_MUTE_BIT)) {
 
 }
 
-int Application::run() {
-	while(true) {
-		handleButtons();
-		receiver.updateIfNeeded();
-	}
+void Application::init() {
+	// Para o contador watchdog
+	WDTCTL = WDTPW | WDTHOLD;
+
+	// configura o clock interno para 16 MHz
+	BCSCTL1 = CALBC1_16MHZ;
+	DCOCTL  = CALDCO_16MHZ;
+
+	// configura o controlador de memória flash
+	FCTL2 = FWKEY + FSSEL_2 + FN5 + FN3;
+}
+
+void Application::loop() {
+	handleButtons();
+	_receiver.updateIfNeeded();
 }
 
 void Application::handleButtons() {
-	if(saveButton.isPressed()) {
+	if(_saveButton.isPressed()) {
 		handleSaveStation();
-	} else if(eraseButton.isPressed()) {
+	} else if(_eraseButton.isPressed()) {
 		handleEraseStation();
-	} else if(changeMemoryButton.isPressed()) {
+	} else if(_changeMemoryButton.isPressed()) {
 		handleChangeMemorizedStation();
-	} else if(upButton.isPressed()) {
+	} else if(_upButton.isPressed()) {
 		handleMoveUp();
-	} else if(downButton.isPressed()) {
+	} else if(_downButton.isPressed()) {
 		handleMoveDown();
-	} else if(muteButton.isPressed()) {
+	} else if(_muteButton.isPressed()) {
 		handleMute();
 	}
 }
 
 void Application::handleSaveStation() {
-	// TODO implement memory saving
+	auto memory = getMemory();
+
+	FM::FMMemory::Station station(_receiver.getFrequency());
+	_currentIndex = memory.addStation(station);
+
+	setMemory(memory);
 }
 
 void Application::handleEraseStation() {
-	// TODO implement memory erasing
+	auto memory = getMemory();
+
+	memory.removeStation(_currentIndex);
+
+	setMemory(memory);
 }
 
 void Application::handleChangeMemorizedStation() {
-	// TODO implement memory tuning
+	auto count = getMemory().getStationCount();
+	if(count == 0) {
+		return;
+	}
+
+	if(count >= _currentIndex) {
+		_currentIndex++;
+		auto& station = getMemory().getStation(_currentIndex);
+		_receiver.setFrequency(station.getFrequency());
+	}
 }
 
 void Application::handleMoveUp() {
-	auto frequency = receiver.getFrequency();
+	auto frequency = _receiver.getFrequency();
 	frequency += 0.1;
 
 	// limite superior de frequencia no padrão US
@@ -88,11 +116,11 @@ void Application::handleMoveUp() {
 		frequency = 108.0;
 	}
 
-	receiver.setFrequency(frequency);
+	_receiver.setFrequency(frequency);
 }
 
 void Application::handleMoveDown() {
-	auto frequency = receiver.getFrequency();
+	auto frequency = _receiver.getFrequency();
 	frequency -= 0.1;
 
 	// limite inferior de frequencia no padrão US
@@ -100,14 +128,14 @@ void Application::handleMoveDown() {
 		frequency = 87.8;
 	}
 
-	receiver.setFrequency(frequency);
+	_receiver.setFrequency(frequency);
 }
 
 void Application::handleMute() {
-	if(receiver.isMuted()) {
-		receiver.unmute();
+	if(_receiver.isMuted()) {
+		_receiver.unmute();
 	} else {
-		receiver.mute();
+		_receiver.mute();
 	}
 }
 
@@ -125,4 +153,8 @@ namespace {
 
 const FM::FMMemory& Application::getMemory() const {
 	return _fmMemory;
+}
+
+void Application::setMemory(const FM::FMMemory& memory) {
+	_fmMemory = memory;
 }

@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <msp430.h>
+
 #include <stdint.h>
 #include <stdbool.h>
 

@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <msp430.h>
+
 namespace IO {
 	/**
 	 * Representa uma variável armazenada na memória flash.

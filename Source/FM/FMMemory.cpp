@@ -28,7 +28,7 @@ namespace FM {
 		_frequency = frequency;
 	}
 
-	FMMemory::StationIndex FMMemory::getStationCount() {
+	FMMemory::StationIndex FMMemory::getStationCount() const {
 		return _count;
 	}
 

@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include "IO/Pin.h"
 #include "IO/Button.h"
 #include "IO/FlashVariable.h"
 
@@ -25,43 +26,46 @@ private:
 	/**
 	 * A instância do bus I2C para este aplicativo
 	 */
-	I2C::I2CBus bus;
+	I2C::I2CBus _bus;
 
 	/**
 	 * A instância do receptor FM para este aplicativo
 	 */
-	FM::FMReceiver receiver;
+	FM::FMReceiver _receiver;
 
 private:
 	/**
 	 * A instância do botão de salvar estação
 	 */
-	IO::DebouncedButton saveButton;
+	IO::DebouncedButton _saveButton;
 
 	/**
 	 * A instância do botão de apagar estação
 	 */
-	IO::DebouncedButton eraseButton;
+	IO::DebouncedButton _eraseButton;
 
 	/**
 	 * A instância do botão de mudar de estação na memória
 	 */
-	IO::DebouncedButton changeMemoryButton;
+	IO::DebouncedButton _changeMemoryButton;
 
 	/**
 	 * A instância do botão de mudar a frequência para cima
 	 */
-	IO::DebouncedButton upButton;
+	IO::DebouncedButton _upButton;
 
 	/**
 	 * A instância do botão de mudar a frequência para baixo
 	 */
-	IO::DebouncedButton downButton;
+	IO::DebouncedButton _downButton;
 
 	/**
 	 * A instância do botão de mudo
 	 */
-	IO::DebouncedButton muteButton;
+	IO::DebouncedButton _muteButton;
+
+private:
+	FM::FMMemory::StationIndex _currentIndex;
 
 public:
 	/**
@@ -71,11 +75,14 @@ public:
 
 public:
 	/**
-	 * Executa o loop principal
-	 *
-	 * @return o valor de retorno
+	 * Initializes the application
 	 */
-	int run();
+	void init();
+
+	/**
+	 * Executa o loop principal
+	 */
+	void loop();
 
 private:
 	/**
@@ -124,14 +131,14 @@ public:
 	 * @return a instância do bus I2C
 	 */
 	I2C::I2CBus& getBus() {
-		return bus;
+		return _bus;
 	}
 
 	/**
 	 * @return a instância do receptor FM
 	 */
 	FM::FMReceiver& getReceiver() {
-		return receiver;
+		return _receiver;
 	}
 
 	/**
@@ -139,45 +146,47 @@ public:
 	 */
 	const FM::FMMemory& getMemory() const;
 
+	void setMemory(const FM::FMMemory& memory);
+
 	/**
 	 * @return uma referência ao botão "salvar"
 	 */
 	const IO::DebouncedButton& getSaveButton() const {
-		return saveButton;
+		return _saveButton;
 	}
 
 	/**
 	 * @return uma referência ao botão "apagar"
 	 */
 	const IO::DebouncedButton& getEraseButton() const {
-		return eraseButton;
+		return _eraseButton;
 	}
 
 	/**
 	 * @return uma referência ao botão "trocar"
 	 */
 	const IO::DebouncedButton& getChangeMemoryButton() const {
-		return changeMemoryButton;
+		return _changeMemoryButton;
 	}
 
 	/**
 	 * @return uma referência ao botão "subir"
 	 */
 	const IO::DebouncedButton& getUpButton() const {
-		return upButton;
+		return _upButton;
 	}
 
 	/**
 	 * @return uma referência ao botão "descer"
 	 */
 	const IO::DebouncedButton& getDownButton() const {
-		return downButton;
+		return _downButton;
 	}
 
 	/**
 	 * @return uma referência ao botão "mudo"
 	 */
 	const IO::DebouncedButton& getMuteButton() const {
-		return muteButton;
+		return _muteButton;
 	}
 };

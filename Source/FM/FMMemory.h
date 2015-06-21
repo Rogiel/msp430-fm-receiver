@@ -130,7 +130,7 @@ namespace FM {
 		/**
 		 * @return o número total de estações salvas na memória
 		 */
-		StationIndex getStationCount();
+		StationIndex getStationCount() const;
 
 		/**
 		 * Retorna uma estação pelo seu índice
