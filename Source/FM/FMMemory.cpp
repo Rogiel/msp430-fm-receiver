@@ -1,8 +1,13 @@
 //
-//  Juice - Peer to Peer Networking library
+// Universidade Federal do Rio Grande do Sul
+// Escola de Engenharia
+// Departamento de Engenharia Elétrica
+// Microprocessadores I
 //
-//  Created by Rogiel Sulzbach.
-//  Copyright (c) 2014-2015 Rogiel Sulzbach. All rights reserved.
+// Implementação I2C
+// Autores: Gustavo Dal Molin, Gustavo dos Anjos e Rogiel Sulzbach
+//
+// https://github.com/Rogiel/msp430-fm-receiver
 //
 
 #include "FMMemory.h"
@@ -10,17 +15,17 @@
 namespace FM {
 
 	FMMemory::Station::Station() = default;
-	FMMemory::Station::Station(PLLSwitches switches) : _switches(switches) {}
+	FMMemory::Station::Station(Frequency frequency) : _frequency(frequency) {}
 
 	FMMemory::Station::Station(const Station& station) = default;
 	FMMemory::Station& FMMemory::Station::operator=(const Station& station) = default;
 
-	FMMemory::Station::PLLSwitches FMMemory::Station::getPLLSwitches() const {
-		return _switches;
+	FMMemory::Station::Frequency FMMemory::Station::getFrequency() const {
+		return _frequency;
 	}
 
-	void FMMemory::Station::setPLLSwitches(PLLSwitches pllSwitches) {
-		_switches = pllSwitches;
+	void FMMemory::Station::setFrequency(Frequency frequency) {
+		_frequency = frequency;
 	}
 
 	FMMemory::StationIndex FMMemory::getStationCount() {

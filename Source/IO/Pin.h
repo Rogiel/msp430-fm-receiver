@@ -7,6 +7,8 @@
 // Implementação I2C
 // Autores: Gustavo Dal Molin, Gustavo dos Anjos e Rogiel Sulzbach
 //
+// https://github.com/Rogiel/msp430-fm-receiver
+//
 
 #pragma once
 
@@ -126,14 +128,23 @@ namespace IO {
 		}
 
 	public:
+		/**
+		 * Configura o registrador de baixo nivel do pino como entrada
+		 */
 		inline void input() const {
 			*_direction &= ~(1 << _bit);
 		}
 
+		/**
+		 * Configura o registrador de baixo nivel do pino como saída
+		 */
 		inline void output() {
 			*_direction |=  (1 << _bit);
 		}
 
+		/**
+		 * Configura o registrador de baixo nivel do resistor interno de pullup
+		 */
 		inline void pullup(bool state) {
 			if(state) {
 				*_pullup |= (1 << _bit);

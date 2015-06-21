@@ -7,6 +7,8 @@
 // Implementação I2C
 // Autores: Gustavo Dal Molin, Gustavo dos Anjos e Rogiel Sulzbach
 //
+// https://github.com/Rogiel/msp430-fm-receiver
+//
 
 #include "I2CBus.h"
 
@@ -113,7 +115,7 @@ namespace I2C {
 	}
 
 	void I2CBus::delay() const {
-		__delay_cycles(100);
+		__delay_cycles(1000000);
 		// no-op
 	}
 }

@@ -7,6 +7,8 @@
 // Implementação I2C
 // Autores: Gustavo Dal Molin, Gustavo dos Anjos e Rogiel Sulzbach
 //
+// https://github.com/Rogiel/msp430-fm-receiver
+//
 
 #pragma once
 

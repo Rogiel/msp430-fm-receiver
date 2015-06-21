@@ -7,6 +7,8 @@
 // Implementação I2C
 // Autores: Gustavo Dal Molin, Gustavo dos Anjos e Rogiel Sulzbach
 //
+// https://github.com/Rogiel/msp430-fm-receiver
+//
 
 #include "FMReceiver.h"
 
@@ -169,6 +171,10 @@ namespace FM {
 	void FMReceiver::setFrequency(Frequency frequency) {
 		_frequency = frequency;
 		setNeedsUpdate();
+	}
+
+	bool FMReceiver::isMuted() const {
+		return _mute;
 	}
 
 	void FMReceiver::mute() {

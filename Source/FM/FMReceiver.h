@@ -7,6 +7,8 @@
 // Implementação I2C
 // Autores: Gustavo Dal Molin, Gustavo dos Anjos e Rogiel Sulzbach
 //
+// https://github.com/Rogiel/msp430-fm-receiver
+//
 
 #pragma once
 
@@ -69,6 +71,13 @@ namespace FM {
 		 * @param frequency a frequencia central FM
 		 */
 		void setFrequency(Frequency frequency);
+
+		/**
+		 * Check if the radio is currently muted
+		 *
+		 * @return true if the received is muted
+		 */
+		bool isMuted() const;
 
 		/**
 		 * Coloca o receptor em mudo
