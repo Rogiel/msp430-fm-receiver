@@ -10,6 +10,8 @@
 
 #include "I2CBus.h"
 
+#define XTAL 16*1000*1000
+
 namespace I2C {
 	I2CBus::I2CBus(IO::Pin scl, IO::Pin sda) : _scl(scl), _sda(sda) {
 		_scl = 0;
@@ -111,7 +113,7 @@ namespace I2C {
 	}
 
 	void I2CBus::delay() const {
-		__delay_cycles(100000);
+		__delay_cycles(100);
 		// no-op
 	}
 }

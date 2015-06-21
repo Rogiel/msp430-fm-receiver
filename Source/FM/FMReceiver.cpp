@@ -11,7 +11,154 @@
 #include "FMReceiver.h"
 
 namespace FM {
-	FMReceiver::FMReceiver(I2C::I2CBus& bus) : _bus(bus), _needsUpdate(true) {
+	namespace {
+		static constexpr uint8_t FM_MUTE_BIT = 7;
+		static constexpr uint8_t FM_SM_BIT = 6;
+
+		union TEA5767Transmit {
+			uint8_t bytes[5];
+
+			TEA5767Transmit() {
+				bytes[0] = 0;
+				bytes[1] = 0;
+				bytes[2] = 0;
+				bytes[3] = 0;
+				bytes[4] = 0;
+			}
+
+			/**
+			 * Bits de configuração do receptor. Descrições retiradas do datahseet do TEA5767.
+			 */
+			struct __attribute__((__packed__)) {
+				// byte 1
+				/**
+				 * if MUTE = 1 then L and R audio are muted; if MUTE = 0 then L and R audio are not muted
+				 */
+				uint8_t MUTE : 1;
+
+				/**
+				 * Search mode: if SM = 1 then in search mode; if SM = 0 then not in search mode
+				 */
+				uint8_t SM : 1;
+
+				/**
+				 * setting of synthesizer programmable counter for search or preset
+				 */
+				uint8_t PLL_H : 6;
+
+				// byte 2
+				/**
+				 * setting of synthesizer programmable counter for search or preset
+				 */
+				uint8_t PLL_L : 8;
+
+				// byte 3
+				/**
+				 * Search Up/Down: if SUD = 1 then search up; if SUD = 0 then search down
+				 */
+				uint8_t SUD : 1;
+
+				/**
+				 * Search Stop Level: see Table 11
+				 */
+				uint8_t SSL : 2;
+
+				/**
+				 * High/Low Side Injection:
+				 * - if HLSI = 1 then high side LO injection;
+				 * - if HLSI = 0 then low side LO injection
+				 */
+				uint8_t HLSI : 1;
+
+				/**
+				 * Mono to Stereo: if MS = 1 then forced mono; if MS = 0 then stereo ON
+				 */
+				uint8_t MS : 1;
+
+				/**
+				 * Mute Right:
+				 * - if MR = 1 then the right audio channel is muted and forced mono;
+				 * - if MR = 0 then the right audio channel is not muted
+				 */
+				uint8_t MR : 1;
+
+				/**
+				 * Mute Left:
+				 * - if ML = 1 then the left audio channel is muted and forced mono;
+				 * - if ML = 0 then the left audio channel is not muted
+				 */
+				uint8_t ML : 1;
+
+				/**
+				 * Software programmable port 1: if SWP1 = 1 then port 1 is HIGH; if SWP1 = 0 then port 1 is LOW
+				 */
+				uint8_t SWP1 : 1;
+
+				// byte 4
+				/**
+				 * Software programmable port 2: if SWP2 = 1 then port 2 is HIGH; if SWP2 = 0 then port 2 is LOW
+				 */
+				uint8_t SWP2 : 1;
+
+				/**
+				 * Standby: if STBY = 1 then in Standby mode; if STBY = 0 then not in Standby mode
+				 */
+				uint8_t STBY : 1;
+
+				/**
+				 * Band Limits: if BL = 1 then Japanese FM band; if BL = 0 then US/Europe FM band
+				 */
+				uint8_t BL : 1;
+
+				/**
+				 * Clock frequency: see Table 16
+				 */
+				uint8_t XTAL : 1;
+
+				/**
+				 * Soft Mute: if SMUTE = 1 then soft mute is ON; if SMUTE = 0 then soft mute is OFF
+				 */
+				uint8_t SMUTE : 1;
+
+				/**
+				 * High Cut Control: if HCC = 1 then high cut control is ON; if HCC = 0 then high cut control is OFF
+				 */
+				uint8_t HCC : 1;
+
+				/**
+				 * Stereo Noise Cancelling: if SNC = 1 then stereo noise cancelling is ON; if SNC = 0 then stereo
+				 * noise cancelling is OFF
+				 */
+				uint8_t SNC : 1;
+
+				/**
+				 * Search Indicator: if SI = 1 then pin SWPORT1 is output for the ready flag; if SI = 0 then pin
+				 * SWPORT1 is software programmable port 1
+				 */
+				uint8_t SI : 1;
+
+				// byte 5
+				/**
+				 * if PLLREF = 1 then the 6.5 MHz reference frequency for the PLL is enabled; if PLLREF = 0 then the
+				 * 6.5 MHz reference frequency for the PLL is disabled; see Table 16
+				 */
+				uint8_t PLLREF : 1;
+
+				/**
+				 * if DTC = 1 then the de-emphasis time constant is 75 μs; if DTC = 0 then the de-emphasis time constant
+				 * is 50 μs
+				 */
+				uint8_t DTC : 1;
+
+				/**
+				 * not used; position is don’t care
+				 */
+				uint8_t unused : 6;
+			} bits;
+		};
+	}
+
+	FMReceiver::FMReceiver(I2C::I2CBus& bus) : _bus(bus), _needsUpdate(true), _mute(false) {
 
 	}
 
@@ -24,29 +171,14 @@ namespace FM {
 		setNeedsUpdate();
 	}
 
-	FMReceiver::Volume FMReceiver::getVolume() const {
-		return _volume;
-	}
-
-	void FMReceiver::setVolume(Volume volume) {
-		_volume = volume;
+	void FMReceiver::mute() {
+		_mute = true;
 		setNeedsUpdate();
 	}
 
-	void FMReceiver::increaseVolume() {
-		auto volume = getVolume() + 0.01;
-		if(volume >= 1.0) {
-			volume = 1.0;
-		}
-		setVolume(volume);
-	}
-
-	void FMReceiver::decreaseVolume() {
-		auto volume = getVolume() - 0.01;
-		if(volume <= 0.0) {
-			volume = 0.0;
-		}
-		setVolume(volume);
+	void FMReceiver::unmute() {
+		_mute = false;
+		setNeedsUpdate();
 	}
 
 	inline void FMReceiver::setNeedsUpdate() {
@@ -62,15 +194,40 @@ namespace FM {
 		// TODO implement real code here
 		_bus.start();
 
+		TEA5767Transmit packet;
+
+		uint16_t pll = calculatePLLWord();
+		packet.bits.PLL_L = (uint8_t) ((pll & 0x00FF) >> 0);
+		packet.bits.PLL_H = (uint8_t) ((pll & 0xFF00) >> 8);
+
+		packet.bits.MUTE = (uint8_t) _mute;
+
+		packet.bits.HLSI = 1;
+		packet.bits.DTC = 1;
+
+		// configure clock
+		packet.bits.XTAL = 1;
+		packet.bits.PLLREF = 0;
+
 		_bus.transmit(I2C_ADDRESS);
-		_bus.transmit(0x2E);
-		_bus.transmit(0xBA);
-		_bus.transmit(0x10);
-		_bus.transmit(0x10);
-		_bus.transmit(0xC0);
+		for(int i=0; i<5; i++) {
+			_bus.transmit(packet.bytes[i]);
+		}
 
 		_bus.stop();
 
 		_needsUpdate = false;
+	}
+
+	uint16_t FMReceiver::calculatePLLWord() const {
+		static constexpr uint64_t kHz = 1000;
+		static constexpr uint64_t MHz = 1000ul*1000ul;
+
+		// assuming high-side injection
+		// equation based-off application notes
+		uint64_t deltaF = (uint64_t)(_frequency * MHz) + 225 * kHz;
+		uint16_t pll = (uint16_t)(4 * deltaF / 32768);
+
+		return pll & 0x3FFF;
 	}
 }

@@ -11,7 +11,7 @@ set(BOARD_NAME "msp430g2553")
 set(MSP_CPU_FLAG "-mmcu=${BOARD_NAME}")
 set(CMAKE_C_FLAGS "${MSP_CPU_FLAG} -Os")
 set(CMAKE_CXX_FLAGS "${MSP_CPU_FLAG} -Os --std=c++0x -g -ffunction-sections -fno-rtti -fdata-sections --gc-sections")
-set(CMAKE_EXE_LINKER_FLAGS "${MSP_CPU_FLAG} -lm -Wl -Os ")
+set(CMAKE_EXE_LINKER_FLAGS "${MSP_CPU_FLAG} -lm -Wl -Os -L${CMAKE_CURRENT_SOURCE_DIR}/MSP430 -L${CMAKE_CURRENT_SOURCE_DIR}/MSP430/${BOARD_NAME} -Tmsp430.x")
 
 # Create the executable
 add_executable(i2cmaster

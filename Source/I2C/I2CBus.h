@@ -38,7 +38,7 @@ namespace I2C {
 		I2CBus(IO::Pin scl, IO::Pin sda);
 
 		/**
-		 * Destroe o bus I2C e seta os SCL e SDA para o valor baixo
+		 * Destroi o bus I2C e seta os SCL e SDA para o valor baixo
 		 */
 		~I2CBus();
 

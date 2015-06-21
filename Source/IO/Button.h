@@ -21,14 +21,16 @@ namespace IO {
 		Pin _pin;
 
 	public:
-		Button(Pin pin) : _pin(pin) {}
+		Button(Pin pin) : _pin(pin) {
+			_pin.pullup(true);
+		}
 
 		Button(const Button& other) = default;
 		Button& operator=(const Button& other) = default;
 
 	public:
 		inline bool isPressed() const {
-			return _pin == true;
+			return _pin == false;
 		}
 
 	public:
@@ -42,20 +44,18 @@ namespace IO {
 		DebouncedButton(Pin pin) : Button(pin) {};
 
 		bool isPressed() const {
-
-			bool state = (_pin == true);
-			for(int i = 0; i<100; i++) {
+			bool state = Button::isPressed();
+			if(!state) {
+				return state;
 			}
 
-			if(_pin == state) {
-				return (_pin == true);
+			for(int i = 0; i<1000; i++) {
+				if(!Button::isPressed()) {
+					return false;
+				}
 			}
-			return state;
-		}
 
-	private:
-		void debounce() {
-
+			return true;
 		}
 	};
 }

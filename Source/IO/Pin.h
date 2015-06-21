@@ -93,7 +93,7 @@ namespace IO {
 		 */
 		inline operator uint8_t() const {
 			input();
-			return (uint8_t) (*_readPort & (1 << _bit) & 0x01);
+			return (uint8_t) (*_readPort & (1 << _bit));
 		}
 
 		/**
@@ -103,8 +103,7 @@ namespace IO {
 		 * @return true se os valores são equivalentes
 		 */
 		inline bool operator==(uint8_t i) const {
-			input();
-			return (*_readPort & (1 << _bit)) == i;
+			return this->operator uint8_t() == i;
 		}
 
 		/**
@@ -113,8 +112,7 @@ namespace IO {
 		 * @return o valor equivalente do pino
 		 */
 		inline operator bool() const {
-			input();
-			return (bool) *_readPort & (1 << _bit);
+			return this->operator uint8_t();
 		}
 
 		/**
@@ -124,8 +122,7 @@ namespace IO {
 		 * @return true se os valores são equivalentes
 		 */
 		inline bool operator==(const bool b) const {
-			input();
-			return (*_readPort & (1 << _bit)) == b;
+			return this->operator bool() == b;
 		}
 
 	public:
@@ -134,7 +131,7 @@ namespace IO {
 		}
 
 		inline void output() {
-			*_direction |= (1 << _bit);
+			*_direction |=  (1 << _bit);
 		}
 
 		inline void pullup(bool state) {
