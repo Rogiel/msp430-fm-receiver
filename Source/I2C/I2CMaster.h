@@ -36,12 +36,12 @@ namespace I2C {
 		/**
 		 * O tipo representando o handler para transmissões
 		 */
-		typedef void(*TransmitHandler)();
+		typedef void(*TransmitHandler)(I2CMaster& master);
 
 		/**
 		 * O tipo representando o handler para recepções
 		 */
-		typedef void(*ReceiveHandler)(uint8_t bytes);
+		typedef void(*ReceiveHandler)(I2CMaster& master, uint8_t bytes);
 
 	private:
 		/**
@@ -145,6 +145,13 @@ namespace I2C {
 		 * @return o byte lido do bus
 		 */
 		bool receive(DeviceAddress address, uint8_t size, bool ack = true);
+
+		/**
+		 * Verifica se há bytes disponiveis no buffer
+		 *
+		 * @return true se há buffers no buffer
+		 */
+		bool available();
 
 		/**
 		 * Retorna um byte de dados do buffer de recepção

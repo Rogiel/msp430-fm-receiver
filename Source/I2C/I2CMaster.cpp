@@ -134,6 +134,10 @@ namespace I2C {
 		return true;
 	}
 
+	bool I2CMaster::available() {
+		return _receiveBufferPointer < _receiveBufferSize;
+	}
+
 	I2CMaster::DataByte I2CMaster::get() {
 		auto b = _receiveBuffer[_receiveBufferReadPointer];
 		_receiveBufferReadPointer++;
@@ -191,7 +195,7 @@ namespace I2C {
 
 			// invoca o handler de transmissão
 			if(_transmitHandler) {
-				_transmitHandler();
+				_transmitHandler(*this);
 			}
 
 			cleanupTransmitBuffer();
@@ -231,7 +235,7 @@ namespace I2C {
 
 			// invoca o handler de recepção
 			if(_receiveHandler) {
-				_receiveHandler(_receiveBufferSize);
+				_receiveHandler(*this, _receiveBufferSize);
 			}
 		}
 	}
