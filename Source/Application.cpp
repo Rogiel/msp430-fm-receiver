@@ -14,9 +14,9 @@
 
 namespace {
 	constexpr uint8_t BUS_SCL_PORT = 1;
-	constexpr uint8_t BUS_SCL_BIT  = 0;
+	constexpr uint8_t BUS_SCL_BIT  = 6;
 	constexpr uint8_t BUS_SDA_PORT = 1;
-	constexpr uint8_t BUS_SDA_BIT  = 6;
+	constexpr uint8_t BUS_SDA_BIT  = 7;
 
 	constexpr uint8_t BUTTON_SAVE_PORT = 2;
 	constexpr uint8_t BUTTON_SAVE_BIT  = 0;
@@ -33,8 +33,9 @@ namespace {
 }
 
 Application::Application() :
-		_bus(IO::Pin::get<BUS_SCL_PORT>(BUS_SCL_BIT), IO::Pin::get<BUS_SDA_PORT>(BUS_SDA_BIT)),
+		_bus(),
 		_receiver(_bus),
+
 		_saveButton(IO::Pin::get<BUTTON_SAVE_PORT>(BUTTON_SAVE_BIT)),
 		_eraseButton(IO::Pin::get<BUTTON_ERASE_PORT>(BUTTON_ERASE_BIT)),
 		_changeMemoryButton(IO::Pin::get<BUTTON_CHANGE_PORT>(BUTTON_CHANGE_BIT)),

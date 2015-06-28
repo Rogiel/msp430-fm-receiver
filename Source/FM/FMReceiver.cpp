@@ -14,9 +14,6 @@
 
 namespace FM {
 	namespace {
-		static constexpr uint8_t FM_MUTE_BIT = 7;
-		static constexpr uint8_t FM_SM_BIT = 6;
-
 		union TEA5767Transmit {
 			uint8_t bytes[5];
 
@@ -160,7 +157,7 @@ namespace FM {
 		};
 	}
 
-	FMReceiver::FMReceiver(I2C::I2CBus& bus) : _bus(bus), _needsUpdate(true), _mute(false) {
+	FMReceiver::FMReceiver(I2C::I2CMaster& bus) : _bus(bus), _needsUpdate(true), _mute(false), _frequency(93.0) {
 
 	}
 
@@ -197,14 +194,11 @@ namespace FM {
 	}
 
 	void FMReceiver::update() {
-		// TODO implement real code here
-		_bus.start();
-
 		TEA5767Transmit packet;
 
 		uint16_t pll = calculatePLLWord();
-		packet.bits.PLL_L = (uint8_t) ((pll & 0x00FF) >> 0);
-		packet.bits.PLL_H = (uint8_t) ((pll & 0xFF00) >> 8);
+		packet.bits.PLL_L = pll & 0xFF;
+		packet.bits.PLL_H = pll >> 8;
 
 		packet.bits.MUTE = (uint8_t) _mute;
 
@@ -215,25 +209,12 @@ namespace FM {
 		packet.bits.XTAL = 1;
 		packet.bits.PLLREF = 0;
 
-		_bus.transmit(I2C_ADDRESS);
-		for(int i=0; i<5; i++) {
-			_bus.transmit(packet.bytes[i]);
-		}
-
-		_bus.stop();
-
+		_bus.transmit(I2C_ADDRESS, packet.bytes, 5);
 		_needsUpdate = false;
 	}
 
 	uint16_t FMReceiver::calculatePLLWord() const {
-		static constexpr uint64_t kHz = 1000;
-		static constexpr uint64_t MHz = 1000ul*1000ul;
-
-		// assuming high-side injection
-		// equation based-off application notes
-		uint64_t deltaF = (uint64_t)(_frequency * MHz) + 225 * kHz;
-		uint16_t pll = (uint16_t)(4 * deltaF / 32768);
-
-		return pll & 0x3FFF;
+		uint16_t word = 4 * (_frequency * 1000000 + 225000) / 32768;
+		return word & 0x3FFF;
 	}
 }

@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "../I2C/I2CBus.h"
+#include "../I2C/I2CMaster.h"
 
 namespace FM {
 	class FMReceiver {
@@ -25,7 +25,7 @@ namespace FM {
 		/**
 		 * O endereço I2C do chip FM
 		 */
-		static const char I2C_ADDRESS = 0b01100000;
+		static const char I2C_ADDRESS = 0x60;
 
 	private:
 		/**
@@ -41,7 +41,7 @@ namespace FM {
 		/**
 		 * Uma referencia ao objeto do bus I2C
 		 */
-		I2C::I2CBus& _bus;
+		I2C::I2CMaster& _bus;
 
 		/**
 		 * Uma flag indicando se o receptor precisa ser atualizado
@@ -54,7 +54,7 @@ namespace FM {
 		 *
 		 * @param bus o bus I2C
 		 */
-		FMReceiver(I2C::I2CBus& bus);
+		FMReceiver(I2C::I2CMaster& bus);
 
 	public:
 

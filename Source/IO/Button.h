@@ -82,7 +82,9 @@ namespace IO {
 		 *
 		 * @param pin o pino para ler o sinal do botão
 		 */
-		DebouncedButton(Pin pin) : Button(pin) {};
+		DebouncedButton(Pin pin) : Button(pin) {
+			pin.pullup(true);
+		};
 
 		/**
 		 * Verifica se o botão está pressionado.
@@ -105,6 +107,48 @@ namespace IO {
 			}
 
 			return true;
+		}
+	};
+
+	class PressAndHoldButton : public DebouncedButton {
+	private:
+		mutable bool _hold;
+
+	public:
+		/**
+		 * Cria um novo botão com debouncing
+		 *
+		 * @param pin o pino para ler o sinal do botão
+		 */
+		PressAndHoldButton(Pin pin) : DebouncedButton(pin) {
+			pin.pullup(true);
+		}
+
+	public:
+		/**
+		 * Verifica se o botão está pressionado.
+		 *
+		 * @note esta implementação aguarda até que o sinal esteja estabilizado por um curto período de tempo. Caso o
+		 * botão ainda não esteja estabilizado, a funcão retorna (false) imediatamente.
+		 *
+		 * @return true se o botão está pressionado e finalizou o debouncing
+		 */
+		inline virtual bool isPressed() const {
+			bool state = DebouncedButton::isPressed();
+			if(state) {
+				if(_hold == false) {
+					_hold = true;
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+
+		inline bool isHolding() const {
+			return _hold;
 		}
 	};
 }

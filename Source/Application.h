@@ -16,7 +16,7 @@
 #include "IO/Button.h"
 #include "IO/FlashVariable.h"
 
-#include "I2C/I2CBus.h"
+#include "I2C/I2CMaster.h"
 
 #include "FM/FMReceiver.h"
 #include "FM/FMMemory.h"
@@ -26,7 +26,7 @@ private:
 	/**
 	 * A instância do bus I2C para este aplicativo
 	 */
-	I2C::I2CBus _bus;
+	I2C::I2CMaster _bus;
 
 	/**
 	 * A instância do receptor FM para este aplicativo
@@ -130,7 +130,7 @@ public:
 	/**
 	 * @return a instância do bus I2C
 	 */
-	I2C::I2CBus& getBus() {
+	I2C::I2CMaster& getBus() {
 		return _bus;
 	}
 
