@@ -173,15 +173,23 @@ namespace I2C {
 		 */
 		void wait();
 
-	private:
-		/**
-		 * A instância compartilhada do bus
-		 */
-		static I2CMaster* _activeBus;
-
 	public:
+		/**
+		 * Ativa o bus como o bus principal
+		 */
 		void enable();
+
+		/**
+		 * Desativa o bus como o bus principal
+		 */
 		void disable();
+
+		/**
+		 * Verifica se o bus é o bus ativo
+		 *
+		 * @return true se o bus é o bus ativo atualmente
+		 */
+		bool isActive();
 
 		/**
 		 * Retorna o bus I2C master compartilhado

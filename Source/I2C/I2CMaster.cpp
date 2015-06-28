@@ -13,6 +13,10 @@
 #include "I2CMaster.h"
 
 namespace I2C {
+	namespace {
+		I2CMaster* _activeBus;
+	}
+
 	I2CMaster::I2CMaster() {
 		_transmitBufferSize = 0;
 		_transmitBufferPointer = 0;
@@ -53,7 +57,7 @@ namespace I2C {
 
 	I2CMaster::~I2CMaster() {
 		// se este é o bus ativo, desativa
-		if(_activeBus == this) {
+		if(isActive()) {
 			disable();
 		}
 	}
@@ -62,6 +66,8 @@ namespace I2C {
 		if(isBusy())
 			return false;
 		if(size > 64)
+			return false;
+		if(!isActive())
 			return false;
 
 		for(uint8_t i = 0; i < size; i++) {
@@ -105,6 +111,8 @@ namespace I2C {
 		if(isBusy())
 			return false;
 		if(size > 64)
+			return false;
+		if(!isActive())
 			return false;
 
 		UCB0I2CSA = address;
@@ -247,10 +255,12 @@ namespace I2C {
 		_activeBus = nullptr;
 	}
 
-	I2CMaster* I2CMaster::_activeBus = nullptr;
+	bool I2CMaster::isActive() {
+		return _activeBus == this;
+	}
 
 	I2CMaster& I2CMaster::activeBus() {
-		return *I2CMaster::_activeBus;
+		return *_activeBus;
 	}
 
 	void I2CMaster::cleanupReceiveBuffer() {
@@ -266,15 +276,15 @@ namespace I2C {
 
 #pragma vector = USCIAB0TX_VECTOR
 	__interrupt void USCIAB0TX_ISR(void) {
-		if(I2CMaster::_activeBus) {
-			I2CMaster::_activeBus->onTransmit();
+		if(_activeBus) {
+			_activeBus->onTransmit();
 		}
 	}
 
 #pragma vector = USCIAB0RX_VECTOR
 	__interrupt void USCIAB0RX_ISR(void) {
-		if(I2CMaster::_activeBus) {
-			I2CMaster::_activeBus->onReceive();
+		if(_activeBus) {
+			_activeBus->onReceive();
 		}
 	}
 
