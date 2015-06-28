@@ -37,7 +37,10 @@ namespace IO {
 		 *
 		 * @param addr o endereço da variável no mapeamento da flash
 		 */
-		FlashVariable(unsigned int addr) : _value((uint8_t*) addr) {};
+		FlashVariable(unsigned int addr) : _value((uint8_t*) addr) {
+			// configura o controlador de memória flash
+			FCTL2 = FWKEY + FSSEL_2 + FN5 + FN3;
+		};
 
 	public:
 		/**

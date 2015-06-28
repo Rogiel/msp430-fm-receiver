@@ -52,9 +52,6 @@ void Application::init() {
 	// configura o clock interno para 16 MHz
 	BCSCTL1 = CALBC1_16MHZ;
 	DCOCTL  = CALDCO_16MHZ;
-
-	// configura o controlador de memória flash
-	FCTL2 = FWKEY + FSSEL_2 + FN5 + FN3;
 }
 
 void Application::loop() {
