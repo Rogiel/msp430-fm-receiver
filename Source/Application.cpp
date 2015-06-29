@@ -100,6 +100,8 @@ void Application::handleChangeMemorizedStation() {
 		_currentIndex++;
 		auto& station = getMemory().getStation(_currentIndex);
 		_receiver.setFrequency(station.getFrequency());
+	} else {
+		_currentIndex = 0;
 	}
 }
 
