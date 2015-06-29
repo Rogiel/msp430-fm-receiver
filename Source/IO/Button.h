@@ -34,7 +34,8 @@ namespace IO {
 		 *
 		 * @param pin o pino para ler o sinal do botão
 		 */
-		Button(Pin pin) : _pin(pin) {
+		inline Button(Pin pin) : _pin(pin) {
+//			_pin.input();
 			_pin.pullup(true);
 		}
 
@@ -82,9 +83,7 @@ namespace IO {
 		 *
 		 * @param pin o pino para ler o sinal do botão
 		 */
-		DebouncedButton(Pin pin) : Button(pin) {
-			pin.pullup(true);
-		};
+		inline DebouncedButton(Pin pin) : Button(pin) { }
 
 		/**
 		 * Verifica se o botão está pressionado.
@@ -120,9 +119,7 @@ namespace IO {
 		 *
 		 * @param pin o pino para ler o sinal do botão
 		 */
-		PressAndHoldButton(Pin pin) : DebouncedButton(pin) {
-			pin.pullup(true);
-		}
+		inline PressAndHoldButton(Pin pin) : DebouncedButton(pin) { }
 
 	public:
 		/**

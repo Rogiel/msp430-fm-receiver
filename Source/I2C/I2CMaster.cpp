@@ -151,7 +151,7 @@ namespace I2C {
 		_receiveHandler = receiveHandler;
 	}
 
-	inline bool I2CMaster::isBusy() {
+	volatile bool I2CMaster::isBusy() {
 		return _busy;
 	}
 
@@ -188,10 +188,10 @@ namespace I2C {
 			// envia uma condição STOP
 			UCB0CTL1 |= UCTXSTP;
 
-			_busy = false;
-
 			// limpa o bit de interrupção TX
 			IFG2 &= ~UCB0TXIFG;
+
+			_busy = false;
 
 			// invoca o handler de transmissão
 			if(_transmitHandler) {
@@ -241,7 +241,7 @@ namespace I2C {
 	}
 
 	void I2CMaster::enable() {
-		if(_activeBus) {
+		if(_activeBus && _activeBus != this) {
 			_activeBus->disable();
 		}
 

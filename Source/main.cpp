@@ -16,7 +16,9 @@
  * Main
  */
 int main () {
-	Application& application = Application::sharedApplication();
+	WDTCTL = WDTPW | WDTHOLD;
+
+	Application application;
 	application.init();
 	while(true) {
 		application.loop();

@@ -173,7 +173,7 @@ namespace I2C {
 		 *
 		 * @return true se o bus está ocupado.
 		 */
-		bool isBusy();
+		volatile bool isBusy();
 
 		/**
 		 * Espera até o bus ser liberado.
